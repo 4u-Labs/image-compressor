@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Compressor</title>
+    <script src="init.js"></script>
+    <script src="libs/tailwind.js"></script>
+    <script src="libs/jszip.min.js"></script>
+    <script src="libs/sortable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            width: 800px;
+            min-height: 500px;
+            margin: 0;
+            background: #050505;
+            color: white;
+            overflow-x: hidden;
+        }
+        .glass-dark {
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #00ff88, #00d4ff, #b388ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .upload-zone {
+            border: 2px dashed rgba(0, 255, 136, 0.3);
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+        .image-card {
+            position: relative;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <header class="text-center mb-6 relative">
+        <button id="tutorialBtn" class="absolute right-0 top-0 text-gray-500 hover:text-green-400 transition-colors" title="Como usar">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </button>
+        <h1 class="text-3xl font-bold gradient-text">Image Compressor</h1>
+        <p class="text-xs text-gray-400">Processamento Local e Privado</p>
+    </header>
+
+    <!-- Modal Tutorial -->
+    <div id="tutorialModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-dark w-full max-w-lg rounded-3xl p-8 relative animate-in fade-in zoom-in duration-300">
+            <button id="closeTutorial" class="absolute right-4 top-4 text-gray-500 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <header class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-green-400">Como usar</h2>
+            </header>
+
+            <div class="space-y-4 text-sm">
+                <div class="bg-white/5 p-4 rounded-xl">
+                    <p class="font-bold mb-1">1. Selecione as Imagens</p>
+                    <p class="text-gray-400">Arraste ou clique para selecionar. Você pode carregar várias de uma vez.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl">
+                    <p class="font-bold mb-1">2. Ajuste as Configurações</p>
+                    <p class="text-gray-400">Escolha o formato e a qualidade. WebP oferece o melhor equilíbrio.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl">
+                    <p class="font-bold mb-1">3. Processe e Baixe</p>
+                    <p class="text-gray-400">Clique em "Comprimir". Ao finalizar, salve o arquivo ZIP gerado.</p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center text-[10px] text-gray-500">
+                4U | Image Compressor - Privacidade Total
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <!-- Upload Zone -->
+        <div id="uploadZone" class="upload-zone glass-dark rounded-2xl p-8 text-center cursor-pointer mb-6">
+            <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
+            <svg class="w-12 h-12 mx-auto mb-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <h3 class="text-lg font-bold">Arraste imagens ou clique aqui</h3>
+        </div>
+
+        <!-- Controls -->
+        <div id="controls" class="hidden grid grid-cols-2 gap-4 mb-6">
+            <div class="glass-dark p-3 rounded-xl">
+                <label class="block text-xs text-gray-400 mb-1">Formato</label>
+                <select id="formatSelect" class="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm outline-none">
+                    <option value="original">Original</option>
+                    <option value="jpeg">JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="webp" selected>WebP</option>
+                </select>
+            </div>
+            <div class="glass-dark p-3 rounded-xl">
+                <label class="block text-xs text-gray-400 mb-1">Qualidade (<span id="qualityVal">80</span>%)</label>
+                <input type="range" id="qualitySlider" min="10" max="100" value="80" class="w-full">
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div id="progressContainer" class="hidden mb-6">
+            <div class="flex justify-between text-xs mb-1">
+                <span id="progressStatus">Processando...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                <div id="progressBar" class="progress-bar h-full w-0 transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div id="actions" class="hidden flex gap-4 mb-6">
+            <button id="processBtn" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl font-bold transition-all">Comprimir Agora</button>
+            <button id="downloadBtn" class="hidden flex-1 bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-all">Baixar ZIP</button>
+            <button id="clearBtn" class="p-3 text-red-400 hover:bg-red-400/10 rounded-xl transition-all">Limpar</button>
+        </div>
+
+        <!-- Grid -->
+        <div id="imagesGrid" class="grid grid-cols-4 gap-4"></div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

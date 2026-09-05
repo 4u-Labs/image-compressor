@@ -1,0 +1,25 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "icons/icon128.png",
+         "16": "icons/icon16.png",
+         "48": "icons/icon48.png"
+      },
+      "default_popup": "index.html"
+   },
+   "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self';"
+   },
+   "description": "Comprima e redimensione imagens localmente no seu navegador. Privacidade total para suas fotos e arquivos.",
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1jvQKLM08DhfbiXUmtIdXsMUjBh0bFMyMhLLbFoOKqtCVxjnHNE7yIhakPNhY3iQL9nnJgfEtIItKOmzm9VObkd027hCRIo7jvIUsnTjhJdLfXqT+F5VlS92U01OrSr9yPigSzc4awUHHr0qbSwhzC+Uk11ayaQxSvxPQP27mTMesRMVdCSxwHOzdJ6tQe6I7Xq/6POcuft3v94T//JnWrmBqyaJ3BIL6EghWvShEzDCeKH+dMd9X1Uv9Z4dvcgAlArB4O0r2sXcmim/5KT8Kh421Tt0wdNPfp7ukEPK2KNODtyf/MkxNucVGGUwuJ63qJldlY03mkq/gGfdzhtK6wIDAQAB",
+   "manifest_version": 3,
+   "name": "Image Compressor",
+   "permissions": [ "storage" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.0.1"
+}
